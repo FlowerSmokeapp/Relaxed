@@ -52,7 +52,7 @@ input { font: inherit; }
     min-height: 100vh;
   }
   .desk-side { display: block; max-width: 280px; color: #2F2A45; }
-  .desk-side h1 { font-size: 46px; letter-spacing: 6px; margin: 0 0 8px; color: #6E5BA8; }
+  .desk-side h1 { font-size: 46px; letter-spacing: 2px; margin: 0 0 8px; color: #6E5BA8; }
   .desk-side p { font-size: 18px; line-height: 1.5; margin: 0 0 12px; }
   .desk-side .muted { color: #7A7494; font-size: 15px; }
   .phone {

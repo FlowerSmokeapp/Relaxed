@@ -1,7 +1,7 @@
 'use strict';
 
 /* =========================================================
-   ROLIG – vejrtrækning og afspænding
+   Relaxed – vejrtrækning og afspænding
    ========================================================= */
 
 const $ = (s, el = document) => el.querySelector(s);
@@ -496,7 +496,7 @@ const VIEWS = {
       <h2>Profil</h2>
       ${isPrem()
         ? `<div class="prem-banner"><div><b>✨ Premium er aktiv</b><br><small>Demo – ingen betaling</small></div></div>`
-        : `<button class="prem-banner" id="goprem"><div><b>✨ Prøv ROLIG Premium</b><br><small>Alle øvelser, lyde og kropsscanning</small></div><div class="play" style="width:44px;height:44px">›</div></button>`}
+        : `<button class="prem-banner" id="goprem"><div><b>✨ Prøv Relaxed Premium</b><br><small>Alle øvelser, lyde og kropsscanning</small></div><div class="play" style="width:44px;height:44px">›</div></button>`}
 
       <h3>Daglig påmindelse</h3>
       <div class="set">
@@ -520,7 +520,7 @@ const VIEWS = {
         <button class="it" id="install"><div>Føj til hjemmeskærm</div><span>›</span></button>
         <button class="it" id="reset"><div>Slet mine data</div><span>›</span></button>
       </div>
-      <p class="sub center" style="font-size:12px;margin-top:22px">ROLIG · version 1.0<br>Dine data bliver kun gemt på din telefon.</p>
+      <p class="sub center" style="font-size:12px;margin-top:22px">Relaxed · version 1.0<br>Dine data bliver kun gemt på din telefon.</p>
     </div>`;
   }
 };
@@ -560,7 +560,7 @@ const BIND = {
       const on = !S.reminder.on;
       if (on && 'Notification' in window && Notification.permission !== 'granted') {
         const p = await Notification.requestPermission();
-        if (p !== 'granted') toast('Slå notifikationer til for ROLIG i telefonens indstillinger.');
+        if (p !== 'granted') toast('Slå notifikationer til for Relaxed i telefonens indstillinger.');
       }
       S.reminder.on = on; save();
       e.target.classList.toggle('on', on);
@@ -1021,7 +1021,7 @@ function paywall() {
   const o = openOverlay(`
     ${closeBtn()}
     <div style="font-size:46px;margin-top:6px">✨</div>
-    <h2>Få mere ro med ROLIG Premium</h2>
+    <h2>Få mere ro med Relaxed Premium</h2>
     <ul class="prem-list">
       <li><span>🌙</span>Alle øvelser og situationsprogrammer</li>
       <li><span>🧘</span>Guidet kropsscanning på 5 og 10 min</li>
@@ -1052,7 +1052,7 @@ function onboarding(step = 0) {
     <div class="onb">
       <div class="mini-circle" style="width:200px;height:200px;margin-bottom:30px"><div class="circle breath-demo" style="width:200px;height:200px"></div></div>
       ${dots}
-      <h2 class="center">Velkommen til ROLIG</h2>
+      <h2 class="center">Velkommen til Relaxed</h2>
       <p class="desc center">Et par minutter om dagen til at trække vejret, slappe af og falde til ro.</p>
       <button class="big-btn" id="nx">Kom i gang</button>
     </div>`;
@@ -1105,7 +1105,7 @@ function checkReminder() {
   if (S.sessions.some(s => s.d === today())) { r.last = today(); save(); return; }
   r.last = today(); save();
   const opts = { body: r.text, icon: 'icons/icon-192.png', badge: 'icons/icon-192.png', tag: 'rolig-daily' };
-  navigator.serviceWorker?.ready.then(reg => reg.showNotification('ROLIG', opts)).catch(() => new Notification('ROLIG', opts));
+  navigator.serviceWorker?.ready.then(reg => reg.showNotification('Relaxed', opts)).catch(() => new Notification('Relaxed', opts));
 }
 
 let deferredPrompt = null;
@@ -1118,7 +1118,7 @@ function installCard() {
   if (isStandalone() || isDesktopFrame() || localStorage.getItem('rolig-hide-install')) return '';
   return `<div class="row install-tip" style="margin-top:16px">
     <div class="ic">📲</div>
-    <div class="tx"><b>Læg ROLIG på hjemmeskærmen</b><span>Så åbner den som en rigtig app</span></div>
+    <div class="tx"><b>Læg Relaxed på hjemmeskærmen</b><span>Så åbner den som en rigtig app</span></div>
     <button class="chip" id="instbtn">Sådan</button>
     <button class="iconbtn" id="insthide" aria-label="Skjul">✕</button>
   </div>`;
@@ -1128,7 +1128,7 @@ function bindInstall() {
   $('#insthide') && ($('#insthide').onclick = () => { localStorage.setItem('rolig-hide-install', '1'); go('home'); });
 }
 async function showInstallHelp() {
-  if (isStandalone()) return toast('ROLIG er allerede installeret 💜');
+  if (isStandalone()) return toast('Relaxed er allerede installeret 💜');
   if (deferredPrompt) {
     deferredPrompt.prompt();
     await deferredPrompt.userChoice; deferredPrompt = null; go(tab); return;
@@ -1142,7 +1142,7 @@ async function showInstallHelp() {
         <div class="tl"><div class="n">1</div><div><b>Åbn siden i Safari</b><span>Det virker kun i Safari på iPhone</span></div></div>
         <div class="tl"><div class="n">2</div><div><b>Tryk på Del-knappen ⬆︎</b><span>Nederst på skærmen (eller øverst på iPad)</span></div></div>
         <div class="tl"><div class="n">3</div><div><b>Vælg "Føj til hjemmeskærm"</b><span>Rul lidt ned i menuen, hvis du ikke kan se den</span></div></div>
-        <div class="tl"><div class="n">4</div><div><b>Tryk "Tilføj"</b><span>Nu ligger ROLIG på din hjemmeskærm</span></div></div>
+        <div class="tl"><div class="n">4</div><div><b>Tryk "Tilføj"</b><span>Nu ligger Relaxed på din hjemmeskærm</span></div></div>
       </div>` : `
       <div class="timeline">
         <div class="tl"><div class="n">1</div><div><b>Åbn siden i Chrome</b><span>På din Android-telefon</span></div></div>

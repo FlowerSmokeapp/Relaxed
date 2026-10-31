@@ -1,4 +1,4 @@
-const CACHE = 'rolig-v2';
+const CACHE = 'relaxed-v3';
 const FILES = [
   './',
   './index.html',
