@@ -1,8 +1,8 @@
 {
-  "name": "Relaxed – vejrtrækning og afspænding",
+  "name": "Relaxed – breathing and relaxation",
   "short_name": "Relaxed",
-  "description": "Guidet vejrtrækning, afspændingslyde og kropsscanning.",
-  "lang": "da",
+  "description": "Guided breathing, relaxing sounds and body scan.",
+  "lang": "en",
   "start_url": "./",
   "scope": "./",
   "display": "standalone",

@@ -1,4 +1,4 @@
-const CACHE = 'relaxed-v4';
+const CACHE = 'relaxed-v5';
 const FILES = [
   './',
   './index.html',
@@ -24,7 +24,7 @@ self.addEventListener('activate', e => {
   );
 });
 
-// Netværk først, så nye versioner kommer frem; cache som reserve offline.
+// Network first so new versions show up; cache as offline fallback.
 self.addEventListener('fetch', e => {
   if (e.request.method !== 'GET') return;
   e.respondWith(

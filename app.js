@@ -1,7 +1,7 @@
 'use strict';
 
 /* =========================================================
-   Relaxed – vejrtrækning og afspænding
+   Relaxed – breathing and relaxation
    ========================================================= */
 
 const $ = (s, el = document) => el.querySelector(s);
@@ -11,37 +11,37 @@ const esc = s => String(s).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;'
 /* ---------- Data ---------- */
 
 const EX = {
-  '478':    { name: '4-7-8 vejrtrækning', emo: '🌙', p: [4, 7, 8, 0], min: 3, free: true,
-              desc: 'Den lange udånding sænker pulsen. God før søvn, eller når tankerne kører.' },
-  boks:     { name: 'Boksvejrtrækning', emo: '◻️', p: [4, 4, 4, 4], min: 4, free: true,
-              desc: 'Fire lige lange trin. Giver ro og fokus, fx før en eksamen.' },
-  hurtig:   { name: 'Hurtig ro', emo: '🍃', p: [4, 0, 6, 0], min: 2, free: true,
-              desc: 'To minutter med lidt længere udånding. Til når du skal falde ned hurtigt.' },
-  balance:  { name: 'Afbalanceret 5-5', emo: '🌊', p: [5, 0, 5, 0], min: 5,
-              desc: 'Rolig, jævn rytme med ca. seks vejrtrækninger i minuttet.' },
-  lang:     { name: 'Lang udånding', emo: '🕊️', p: [4, 2, 8, 0], min: 5,
-              desc: 'Ind, et kort ophold og så en lang, langsom udånding.' }
+  '478':    { name: '4-7-8 breathing', emo: '🌙', p: [4, 7, 8, 0], min: 3, free: true,
+              desc: 'The long exhale slows your heart rate. Great before sleep or when your thoughts are racing.' },
+  boks:     { name: 'Box breathing', emo: '◻️', p: [4, 4, 4, 4], min: 4, free: true,
+              desc: 'Four equal steps. Brings calm and focus, e.g. before an exam.' },
+  hurtig:   { name: 'Quick calm', emo: '🍃', p: [4, 0, 6, 0], min: 2, free: true,
+              desc: 'Two minutes with a slightly longer exhale. For when you need to calm down fast.' },
+  balance:  { name: 'Balanced 5-5', emo: '🌊', p: [5, 0, 5, 0], min: 5,
+              desc: 'A calm, even rhythm of about six breaths per minute.' },
+  lang:     { name: 'Long exhale', emo: '🕊️', p: [4, 2, 8, 0], min: 5,
+              desc: 'In, a short pause, then a long, slow exhale.' }
 };
 
 const SOUNDS = {
-  rain:   { name: 'Regn',      emo: '🌧️', free: true },
-  waves:  { name: 'Bølger',    emo: '🌊', free: true },
-  forest: { name: 'Skov',      emo: '🌲' },
-  white:  { name: 'Hvid støj', emo: '⚪' }
+  rain:   { name: 'Rain',      emo: '🌧️', free: true },
+  waves:  { name: 'Waves',     emo: '🌊', free: true },
+  forest: { name: 'Forest',    emo: '🌲' },
+  white:  { name: 'White noise', emo: '⚪' }
 };
 
 const SITUATIONS = {
   eksamen: {
-    name: 'Før eksamen', emo: '📚',
-    intro: 'Vi får pulsen ned og samler fokus, så du kan gå ind med et klart hoved.',
+    name: 'Before an exam', emo: '📚',
+    intro: 'We bring your heart rate down and gather your focus, so you can walk in with a clear head.',
     steps: [
       { type: 'breath', ex: 'boks', min: 4 },
-      { type: 'text', title: 'Én ting ad gangen', text: 'Du har forberedt dig. Læs spørgsmålet roligt, og tag ét skridt ad gangen.', sec: 20 }
+      { type: 'text', title: 'One thing at a time', text: 'You have prepared. Read the question calmly, and take it one step at a time.', sec: 20 }
     ]
   },
   sove: {
-    name: 'Kan ikke sove', emo: '🌙',
-    intro: 'Vi starter med at sænke pulsen og slutter med lyd, du kan falde i søvn til.',
+    name: 'Can’t sleep', emo: '🌙',
+    intro: 'We start by slowing your heart rate and finish with sounds you can fall asleep to.',
     steps: [
       { type: 'breath', ex: '478', min: 3 },
       { type: 'scan', min: 5 },
@@ -49,16 +49,16 @@ const SITUATIONS = {
     ]
   },
   fremlaeg: {
-    name: 'Nervøs før fremlæggelse', emo: '🎤',
-    intro: 'To minutter med lange udåndinger. Det fortæller kroppen, at der ikke er fare.',
+    name: 'Nervous before a presentation', emo: '🎤',
+    intro: 'Two minutes of long exhales. It tells your body there is no danger.',
     steps: [
       { type: 'breath', ex: 'hurtig', min: 2 },
-      { type: 'text', title: 'Du er klar', text: 'Sænk skuldrene. Det er helt normalt at være lidt nervøs – det betyder, at du gerne vil det her.', sec: 15 }
+      { type: 'text', title: 'You’re ready', text: 'Drop your shoulders. It’s completely normal to be a little nervous – it means you care about this.', sec: 15 }
     ]
   },
   haard: {
-    name: 'Efter en hård dag', emo: '🌧️',
-    intro: 'Læg dig godt til rette. Vi slipper dagen med en kropsscanning og lyden af bølger.',
+    name: 'After a hard day', emo: '🌧️',
+    intro: 'Get comfortable. We let go of the day with a body scan and the sound of waves.',
     steps: [
       { type: 'scan', min: 10, sound: 'waves' }
     ]
@@ -66,28 +66,31 @@ const SITUATIONS = {
 };
 
 const SCAN = [
-  { parts: ['whole'], text: 'Find en behagelig stilling. Luk øjnene, hvis du har lyst, og mærk, at underlaget bærer dig.' },
-  { parts: ['feet'], text: 'Flyt opmærksomheden ned til dine fødder. Mærk tæerne, hælene og fodsålerne. Lad dem blive tunge.' },
-  { parts: ['legs'], text: 'Lad roen sprede sig op gennem læggene, knæene og lårene. Der er ingenting, de skal gøre lige nu.' },
-  { parts: ['belly'], text: 'Mærk maven. Lad den hæve sig, når du trækker vejret ind, og synke, når du puster ud.' },
-  { parts: ['chest'], text: 'Mærk brystet og ryggen. Med hver udånding bliver du en lille smule mere afslappet.' },
-  { parts: ['armL', 'armR', 'handL', 'handR'], text: 'Lad armene ligge tungt. Mærk hænderne og fingrene, og lad dem slippe helt.' },
-  { parts: ['shoulders', 'neck'], text: 'Lad skuldrene synke ned, væk fra ørerne. Slip spændingen i nakken.' },
-  { parts: ['head'], text: 'Slap af i ansigtet. Kæben, kinderne, rundt om øjnene og panden. Alt er blødt.' },
-  { parts: ['whole'], text: 'Mærk nu hele kroppen på én gang. Tung, varm og rolig.' },
-  { parts: ['whole'], text: 'Bliv her så længe, du har lyst. Når du er klar, så bevæg langsomt fingre og tæer.' }
+  { parts: ['whole'], text: 'Find a comfortable position. Close your eyes if you like, and feel the surface beneath you holding you up.' },
+  { parts: ['feet'], text: 'Move your attention down to your feet. Notice your toes, your heels and the soles of your feet. Let them grow heavy.' },
+  { parts: ['legs'], text: 'Let the calm spread up through your calves, knees and thighs. There is nothing they need to do right now.' },
+  { parts: ['belly'], text: 'Notice your belly. Let it rise as you breathe in, and sink as you breathe out.' },
+  { parts: ['chest'], text: 'Notice your chest and your back. With every exhale you become a little more relaxed.' },
+  { parts: ['armL', 'armR', 'handL', 'handR'], text: 'Let your arms rest heavily. Notice your hands and fingers, and let them go completely.' },
+  { parts: ['shoulders', 'neck'], text: 'Let your shoulders sink down, away from your ears. Release the tension in your neck.' },
+  { parts: ['head'], text: 'Relax your face. Your jaw, your cheeks, around your eyes and your forehead. Everything is soft.' },
+  { parts: ['whole'], text: 'Now feel your whole body at once. Heavy, warm and calm.' },
+  { parts: ['whole'], text: 'Stay here as long as you like. When you are ready, slowly move your fingers and toes.' }
 ];
-const SCAN_EXTRA = 'Bliv her lidt endnu. Træk vejret helt roligt.';
+const SCAN_EXTRA = 'Stay here a little longer. Breathe slowly and calmly.';
 
-/* ---------- Lager ---------- */
+/* ---------- Storage ---------- */
+
+const REMINDER_TEXTS = ['Take 2 minutes for yourself 💜', 'A little breather? 🍃', 'Breathe – you deserve a break 🌙', 'How are you feeling today? ☁️'];
 
 const DEFAULTS = {
   onboarded: false, goals: [], premium: false, dark: false,
   vib: true, cues: false, voice: true,
-  reminder: { on: false, time: '21:00', text: 'Tag 2 minutter til dig selv 💜', last: '' },
+  reminder: { on: false, time: '21:00', text: 'Take 2 minutes for yourself 💜', last: '' },
   sessions: [], custom: []
 };
 let S = load();
+if (!REMINDER_TEXTS.includes(S.reminder.text)) S.reminder.text = REMINDER_TEXTS[0];
 function load() {
   try { return Object.assign({}, DEFAULTS, JSON.parse(localStorage.getItem('rolig') || '{}')); }
   catch { return { ...DEFAULTS }; }
@@ -107,7 +110,7 @@ function minutesByDay() {
   for (const s of S.sessions) map[s.d] = (map[s.d] || 0) + s.m;
   return map;
 }
-// Streak med én "fridag" pr. uge, så en enkelt glemt dag ikke bryder den.
+// Streak allows one "day off" per week, so a single missed day doesn't break it.
 function streak() {
   const map = minutesByDay();
   const d = new Date();
@@ -126,7 +129,7 @@ function streak() {
   return n;
 }
 
-/* ---------- Hjælpere ---------- */
+/* ---------- Helpers ---------- */
 
 const isPrem = () => S.premium;
 const lock = free => (free || isPrem()) ? '' : '<span class="lock">🔒</span>';
@@ -139,18 +142,19 @@ function toast(msg, ms = 2600) {
   toast._t = setTimeout(() => (t.hidden = true), ms);
 }
 
-let daVoice = null;
+let enVoice = null;
 function pickVoice() {
   const v = speechSynthesis.getVoices();
-  daVoice = v.find(x => /^da/i.test(x.lang)) || null;
+  enVoice = v.find(x => /^en-(US|GB)/i.test(x.lang) && /samantha|karen|daniel|serena|female|natural|google/i.test(x.name))
+    || v.find(x => /^en/i.test(x.lang)) || null;
 }
 if ('speechSynthesis' in window) { pickVoice(); speechSynthesis.onvoiceschanged = pickVoice; }
 function speak(text, rate = 0.85) {
   if (!('speechSynthesis' in window)) return;
   speechSynthesis.cancel();
   const u = new SpeechSynthesisUtterance(text);
-  u.lang = 'da-DK'; u.rate = rate; u.pitch = 0.95;
-  if (daVoice) u.voice = daVoice;
+  u.lang = 'en-US'; u.rate = rate; u.pitch = 0.95;
+  if (enVoice) u.voice = enVoice;
   speechSynthesis.speak(u);
 }
 function hush() { if ('speechSynthesis' in window) speechSynthesis.cancel(); }
@@ -165,14 +169,14 @@ async function keepAwake(on) {
 
 function greeting() {
   const h = new Date().getHours();
-  if (h >= 5 && h < 10) return 'God morgen ☀️';
-  if (h >= 10 && h < 17) return 'Hej 🌤️';
-  if (h >= 17 && h < 23) return 'God aften 🌙';
-  return 'Godnat 🌌';
+  if (h >= 5 && h < 10) return 'Good morning ☀️';
+  if (h >= 10 && h < 17) return 'Hello 🌤️';
+  if (h >= 17 && h < 23) return 'Good evening 🌙';
+  return 'Good night 🌌';
 }
 
 /* =========================================================
-   Lydmotor (Web Audio – lydene genereres direkte i appen)
+   Sound engine (Web Audio – sounds are generated in the app)
    ========================================================= */
 
 const Audio = {
@@ -204,7 +208,7 @@ const Audio = {
           d[i] = (b0 + b1 + b2 + b3 + b4 + b5 + b6 + w * 0.5362) * 0.11; b6 = w * 0.115926;
         } else { last = (last + 0.02 * w) / 1.02; d[i] = last * 3.5; }
       }
-      // Bløde kanter, så loopet ikke klikker
+      // Soft edges so the loop doesn't click
       const f = Math.min(2000, len / 4);
       for (let i = 0; i < f; i++) { const g = i / f; d[i] *= g; d[len - 1 - i] *= g; }
     }
@@ -238,7 +242,7 @@ const Audio = {
       const g2 = ctx.createGain(); g2.gain.value = 0.35;
       s2.connect(g2).connect(out);
       nodes.push(s, s2);
-      // Små dråber
+      // Small drops
       const drop = () => {
         const t = ctx.currentTime, o = ctx.createOscillator(), e = ctx.createGain();
         o.type = 'sine'; o.frequency.setValueAtTime(1800 + Math.random() * 2600, t);
@@ -365,7 +369,7 @@ function renderPlayer() {
       <span id="ptime"></span>
       <button class="iconbtn" id="pstop" aria-label="Stop">■</button>
     </div>
-    <input type="range" min="0" max="1" step="0.01" value="${Audio.volume}" id="pvol" aria-label="Lydstyrke">
+    <input type="range" min="0" max="1" step="0.01" value="${Audio.volume}" id="pvol" aria-label="Volume">
     <div class="chips">
       ${[[15, '15 min'], [30, '30 min'], [60, '60 min'], [0, '∞']].map(([m, l]) =>
         `<button class="chip ${sel === m ? 'on' : ''}" data-t="${m}">${l}</button>`).join('')}
@@ -388,7 +392,7 @@ function refreshSoundCards() {
 }
 
 /* =========================================================
-   Faner
+   Tabs
    ========================================================= */
 
 let tab = 'home';
@@ -419,14 +423,14 @@ const VIEWS = {
       </button>`).join('');
     return `<div>
       <h2>${greeting()}</h2>
-      <div class="streak-pill">🔥 ${st ? `${st} ${st === 1 ? 'dag' : 'dage'} i træk` : 'Start din første dag i dag'}</div>
+      <div class="streak-pill">🔥 ${st ? `${st}-day streak` : 'Start your first day today'}</div>
       ${installCard()}
       <button class="hero" id="quick">
-        <div><small>Ét tryk – så er du i gang</small><b>Hurtig ro · 2 min</b></div>
+        <div><small>One tap and you’re started</small><b>Quick calm · 2 min</b></div>
         <div class="play">▶</div>
       </button>
 
-      <h3>Hvordan har du det lige nu?</h3>
+      <h3>How are you feeling right now?</h3>
       <div class="hscroll">
         ${Object.entries(SITUATIONS).map(([id, s]) => `
           <button class="sit" data-sit="${id}">${lock(false)}
@@ -434,22 +438,22 @@ const VIEWS = {
           </button>`).join('')}
       </div>
 
-      <h3>Øvelser</h3>
+      <h3>Exercises</h3>
       <div class="list">
         ${exRows}
         <button class="row" data-scan="1">
           <div class="ic">🧘</div>
-          <div class="tx"><b>Kropsscanning</b><span>Guidet lyd · 5 eller 10 min</span></div>
+          <div class="tx"><b>Body scan</b><span>Guided audio · 5 or 10 min</span></div>
           ${lock(false)}
         </button>
       </div>
 
-      <h3>Mine øvelser</h3>
+      <h3>My exercises</h3>
       <div class="list">
         ${customRows}
         <button class="row" id="newcustom">
           <div class="ic">＋</div>
-          <div class="tx"><b>Lav din egen øvelse</b><span>Vælg selv tempo og længde</span></div>
+          <div class="tx"><b>Create your own exercise</b><span>Choose your own pace and length</span></div>
           ${lock(false)}
         </button>
       </div>
@@ -458,15 +462,15 @@ const VIEWS = {
 
   sounds() {
     return `<div>
-      <h2>Lyde</h2>
-      <p class="sub">Lad en lyd køre i baggrunden – med timer, så den slukker af sig selv.</p>
+      <h2>Sounds</h2>
+      <p class="sub">Let a sound play in the background – with a timer, so it turns itself off.</p>
       <div class="grid">
         ${Object.entries(SOUNDS).map(([id, s]) => `
           <button class="snd ${Audio.active[id] ? 'on' : ''}" data-s="${id}">${lock(s.free)}
             <div class="emo">${s.emo}</div><b>${s.name}</b>
           </button>`).join('')}
       </div>
-      <p class="sub" style="margin-top:16px;font-size:13px">${isPrem() ? 'Premium: tryk på to lyde for at blande dem.' : 'Med Premium kan du blande to lyde, fx regn og skov.'}</p>
+      <p class="sub" style="margin-top:16px;font-size:13px">${isPrem() ? 'Premium: tap two sounds to mix them.' : 'With Premium you can mix two sounds, e.g. rain and forest.'}</p>
     </div>`;
   },
 
@@ -475,52 +479,52 @@ const VIEWS = {
     const moods = S.sessions.filter(s => s.mood);
     const avg = moods.length ? moods.reduce((a, s) => a + s.mood, 0) / moods.length : 0;
     return `<div>
-      <h2>Fremgang</h2>
-      <p class="sub">Små pauser tæller. Det handler ikke om at være perfekt.</p>
+      <h2>Progress</h2>
+      <p class="sub">Small breaks count. It’s not about being perfect.</p>
       <div class="stats">
-        <div class="stat"><b>🔥 ${streak()}</b><span>dage i træk</span></div>
-        <div class="stat"><b>${Math.round(total)}</b><span>minutter i alt</span></div>
-        <div class="stat"><b>${S.sessions.length}</b><span>sessioner</span></div>
+        <div class="stat"><b>🔥 ${streak()}</b><span>day streak</span></div>
+        <div class="stat"><b>${Math.round(total)}</b><span>total minutes</span></div>
+        <div class="stat"><b>${S.sessions.length}</b><span>sessions</span></div>
       </div>
-      <h3>Kalender</h3>
+      <h3>Calendar</h3>
       <div class="cal" id="cal"></div>
-      ${moods.length ? `<div class="note">${['', '😣', '😕', '😐', '🙂', '😌'][Math.round(avg)]} Efter dine øvelser har du det i gennemsnit <b>${avg >= 4 ? 'godt' : avg >= 3 ? 'okay' : 'lidt bedre'}</b> (${moods.length} svar).</div>` : ''}
-      <div class="note">💜 Én glemt dag om ugen bryder ikke din streak. Livet sker.</div>
-      ${S.sessions.length ? '' : '<div class="note">Du har ikke lavet nogen øvelser endnu. Prøv <b>Hurtig ro</b> på forsiden – det tager kun 2 minutter.</div>'}
+      ${moods.length ? `<div class="note">${['', '😣', '😕', '😐', '🙂', '😌'][Math.round(avg)]} After your exercises you feel <b>${avg >= 4 ? 'good' : avg >= 3 ? 'okay' : 'a little better'}</b> on average (${moods.length} ${moods.length === 1 ? 'answer' : 'answers'}).</div>` : ''}
+      <div class="note">💜 One missed day a week won’t break your streak. Life happens.</div>
+      ${S.sessions.length ? '' : '<div class="note">You haven’t done any exercises yet. Try <b>Quick calm</b> on the home screen – it only takes 2 minutes.</div>'}
     </div>`;
   },
 
   profile() {
     const r = S.reminder;
     return `<div>
-      <h2>Profil</h2>
+      <h2>Profile</h2>
       ${isPrem()
-        ? `<div class="prem-banner"><div><b>✨ Premium er aktiv</b><br><small>Demo – ingen betaling</small></div></div>`
-        : `<button class="prem-banner" id="goprem"><div><b>✨ Prøv Relaxed Premium</b><br><small>Alle øvelser, lyde og kropsscanning</small></div><div class="play" style="width:44px;height:44px">›</div></button>`}
+        ? `<div class="prem-banner"><div><b>✨ Premium is active</b><br><small>Demo – no payment</small></div></div>`
+        : `<button class="prem-banner" id="goprem"><div><b>✨ Try Relaxed Premium</b><br><small>All exercises, sounds and body scan</small></div><div class="play" style="width:44px;height:44px">›</div></button>`}
 
-      <h3>Daglig påmindelse</h3>
+      <h3>Daily reminder</h3>
       <div class="set">
-        <div class="it"><div>Påmindelse</div><button class="switch ${r.on ? 'on' : ''}" id="remOn" aria-label="Påmindelse"></button></div>
-        <div class="it"><div>Tidspunkt</div><input type="time" id="remTime" value="${r.time}"></div>
-        <button class="it" id="remText"><div>Besked<br><span>${esc(r.text)}</span></div><span>›</span></button>
+        <div class="it"><div>Reminder</div><button class="switch ${r.on ? 'on' : ''}" id="remOn" aria-label="Reminder"></button></div>
+        <div class="it"><div>Time</div><input type="time" id="remTime" value="${r.time}"></div>
+        <button class="it" id="remText"><div>Message<br><span>${esc(r.text)}</span></div><span>›</span></button>
       </div>
-      <p class="sub" style="font-size:12.5px;margin-top:8px">Påmindelsen kommer som en notifikation, mens appen er åben eller ligger i baggrunden.</p>
+      <p class="sub" style="font-size:12.5px;margin-top:8px">The reminder arrives as a notification while the app is open or running in the background.</p>
 
-      <h3>Indstillinger</h3>
+      <h3>Settings</h3>
       <div class="set">
-        <div class="it"><div>Vibration<br><span>Mærk hvornår du skal ånde ind og ud</span></div><button class="switch ${S.vib ? 'on' : ''}" data-k="vib"></button></div>
-        <div class="it"><div>Stemme i øvelser<br><span>Siger "ind", "hold" og "ud"</span></div><button class="switch ${S.cues ? 'on' : ''}" data-k="cues"></button></div>
-        <div class="it"><div>Stemme i kropsscanning</div><button class="switch ${S.voice ? 'on' : ''}" data-k="voice"></button></div>
-        <div class="it"><div>Mørk tilstand<br><span>God ved sengetid</span></div><button class="switch ${S.dark ? 'on' : ''}" data-k="dark"></button></div>
+        <div class="it"><div>Vibration<br><span>Feel when to breathe in and out</span></div><button class="switch ${S.vib ? 'on' : ''}" data-k="vib"></button></div>
+        <div class="it"><div>Voice in exercises<br><span>Says "in", "hold" and "out"</span></div><button class="switch ${S.cues ? 'on' : ''}" data-k="cues"></button></div>
+        <div class="it"><div>Voice in body scan</div><button class="switch ${S.voice ? 'on' : ''}" data-k="voice"></button></div>
+        <div class="it"><div>Dark mode<br><span>Nice at bedtime</span></div><button class="switch ${S.dark ? 'on' : ''}" data-k="dark"></button></div>
         ${isPrem() ? `<div class="it"><div>Premium (demo)</div><button class="switch on" data-k="premium"></button></div>` : ''}
       </div>
 
       <h3>App</h3>
       <div class="set">
-        <button class="it" id="install"><div>Føj til hjemmeskærm</div><span>›</span></button>
-        <button class="it" id="reset"><div>Slet mine data</div><span>›</span></button>
+        <button class="it" id="install"><div>Add to Home Screen</div><span>›</span></button>
+        <button class="it" id="reset"><div>Delete my data</div><span>›</span></button>
       </div>
-      <p class="sub center" style="font-size:12px;margin-top:22px">Relaxed · version 1.0<br>Dine data bliver kun gemt på din telefon.</p>
+      <p class="sub center" style="font-size:12px;margin-top:22px">Relaxed · version 1.0<br>Your data is only stored on your phone.</p>
     </div>`;
   }
 };
@@ -560,22 +564,22 @@ const BIND = {
       const on = !S.reminder.on;
       if (on && 'Notification' in window && Notification.permission !== 'granted') {
         const p = await Notification.requestPermission();
-        if (p !== 'granted') toast('Slå notifikationer til for Relaxed i telefonens indstillinger.');
+        if (p !== 'granted') toast('Turn on notifications for Relaxed in your phone settings.');
       }
       S.reminder.on = on; save();
       e.target.classList.toggle('on', on);
-      if (on) toast(`Vi minder dig om det kl. ${S.reminder.time} 💜`);
+      if (on) toast(`We’ll remind you at ${S.reminder.time} 💜`);
     };
     $('#remTime').onchange = e => { S.reminder.time = e.target.value; S.reminder.last = ''; save(); };
     $('#remText').onclick = () => {
-      const opts = ['Tag 2 minutter til dig selv 💜', 'Et lille pusterum? 🍃', 'Træk vejret – du fortjener en pause 🌙', 'Hvordan har du det i dag? ☁️'];
+      const opts = REMINDER_TEXTS;
       const i = opts.indexOf(S.reminder.text);
       S.reminder.text = opts[(i + 1) % opts.length]; save(); go('profile');
     };
     $('#install').onclick = showInstallHelp;
     $('#reset').onclick = () => {
-      if (confirm('Vil du slette al din fremgang og dine indstillinger?')) {
-        localStorage.removeItem('rolig'); S = load(); applyTheme(); go('home'); toast('Dine data er slettet.');
+      if (confirm('Do you want to delete all your progress and settings?')) {
+        localStorage.removeItem('rolig'); S = load(); applyTheme(); go('home'); toast('Your data has been deleted.');
       }
     };
   }
@@ -586,7 +590,7 @@ function renderCal(d) {
   calMonth = new Date(d.getFullYear(), d.getMonth(), 1);
   const map = minutesByDay(), y = calMonth.getFullYear(), m = calMonth.getMonth();
   const first = (new Date(y, m, 1).getDay() + 6) % 7, days = new Date(y, m + 1, 0).getDate();
-  let cells = ['Ma', 'Ti', 'On', 'To', 'Fr', 'Lø', 'Sø'].map(x => `<div class="dn">${x}</div>`).join('');
+  let cells = ['Mo', 'Tu', 'We', 'Th', 'Fr', 'Sa', 'Su'].map(x => `<div class="dn">${x}</div>`).join('');
   for (let i = 0; i < first; i++) cells += '<div></div>';
   for (let i = 1; i <= days; i++) {
     const k = dkey(new Date(y, m, i)), v = map[k] || 0;
@@ -596,7 +600,7 @@ function renderCal(d) {
   $('#cal').innerHTML = `
     <div class="cal-head">
       <button class="iconbtn" id="cprev">‹</button>
-      <b>${calMonth.toLocaleDateString('da-DK', { month: 'long', year: 'numeric' })}</b>
+      <b>${calMonth.toLocaleDateString('en-US', { month: 'long', year: 'numeric' })}</b>
       <button class="iconbtn" id="cnext">›</button>
     </div>
     <div class="cal-grid">${cells}</div>`;
@@ -605,7 +609,7 @@ function renderCal(d) {
 }
 
 /* =========================================================
-   Overlay-skærme
+   Overlay screens
    ========================================================= */
 
 let cleanup = null;
@@ -622,38 +626,38 @@ function closeOverlay() {
   $('#overlay').innerHTML = '';
   go(tab);
 }
-const closeBtn = (label = '') => `<div class="ov-top"><span class="sub">${label}</span><button class="close" data-close aria-label="Luk">✕</button></div>`;
+const closeBtn = (label = '') => `<div class="ov-top"><span class="sub">${label}</span><button class="close" data-close aria-label="Close">✕</button></div>`;
 function bindClose(o) { $$('[data-close]', o).forEach(b => b.onclick = closeOverlay); }
 
-/* ---------- Øvelsesdetalje ---------- */
+/* ---------- Exercise detail ---------- */
 
 function showDetail(id, custom) {
   const e = custom || EX[id];
   const lens = [...new Set([1, 3, 5, e.min])].sort((a, b) => a - b);
   let len = e.min, sound = null;
-  const names = ['Ind', 'Hold', 'Ud', 'Hold'];
+  const names = ['In', 'Hold', 'Out', 'Hold'];
   const o = openOverlay(`
     ${closeBtn()}
     <h2>${custom ? '✨ ' + esc(e.name) : e.emo + ' ' + e.name}</h2>
-    <p class="desc">${custom ? 'Din egen øvelse.' : e.desc}</p>
+    <p class="desc">${custom ? 'Your own exercise.' : e.desc}</p>
     <div class="rhythm">${e.p.map((s, i) => s ? `<div><b>${s}</b><span>${names[i]}</span></div>` : '').join('')}</div>
 
-    <div class="lbl">Længde</div>
+    <div class="lbl">Length</div>
     <div class="seg" id="len">${lens.map(l => `<button data-l="${l}" class="${l === len ? 'on' : ''}">${l} min</button>`).join('')}</div>
 
-    <div class="lbl">Baggrundslyd</div>
+    <div class="lbl">Background sound</div>
     <div class="chips" id="bg">
-      <button class="chip on" data-s="">Ingen</button>
+      <button class="chip on" data-s="">None</button>
       ${Object.entries(SOUNDS).map(([k, s]) => `<button class="chip" data-s="${k}">${s.emo} ${s.name}${s.free || isPrem() ? '' : ' 🔒'}</button>`).join('')}
     </div>
 
     <div class="set" style="margin-top:22px">
       <div class="it"><div>Vibration</div><button class="switch ${S.vib ? 'on' : ''}" data-k="vib"></button></div>
-      <div class="it"><div>Stemme</div><button class="switch ${S.cues ? 'on' : ''}" data-k="cues"></button></div>
+      <div class="it"><div>Voice</div><button class="switch ${S.cues ? 'on' : ''}" data-k="cues"></button></div>
     </div>
 
     <button class="big-btn" id="start">Start</button>
-    ${custom ? '<button class="ghost-btn" id="del">Slet øvelse</button>' : ''}
+    ${custom ? '<button class="ghost-btn" id="del">Delete exercise</button>' : ''}
   `);
   bindClose(o);
   $$('#len button', o).forEach(b => b.onclick = () => {
@@ -670,18 +674,18 @@ function showDetail(id, custom) {
     runBreath({ ...e, id: id || 'custom', min: len });
   };
   if (custom) $('#del', o).onclick = () => {
-    S.custom = S.custom.filter(c => c.id !== custom.id); save(); closeOverlay(); toast('Øvelsen er slettet.');
+    S.custom = S.custom.filter(c => c.id !== custom.id); save(); closeOverlay(); toast('The exercise has been deleted.');
   };
 }
 
-/* ---------- Vejrtrækning ---------- */
+/* ---------- Breathing ---------- */
 
 function runBreath(opts, onDone, stepLabel = '') {
   const [a, b, c, d] = opts.p;
   const phases = [];
-  if (a) phases.push({ t: 'Træk vejret ind', s: a, k: 'in', say: 'Ind' });
-  if (b) phases.push({ t: 'Hold vejret', s: b, k: 'hold', say: 'Hold' });
-  if (c) phases.push({ t: 'Pust langsomt ud', s: c, k: 'out', say: 'Ud' });
+  if (a) phases.push({ t: 'Breathe in', s: a, k: 'in', say: 'In' });
+  if (b) phases.push({ t: 'Hold your breath', s: b, k: 'hold', say: 'Hold' });
+  if (c) phases.push({ t: 'Breathe out slowly', s: c, k: 'out', say: 'Out' });
   if (d) phases.push({ t: 'Hold', s: d, k: 'hold', say: 'Hold' });
   const cycleLen = phases.reduce((x, p) => x + p.s, 0);
   const cycles = Math.max(1, Math.round(opts.min * 60 / cycleLen));
@@ -695,9 +699,9 @@ function runBreath(opts, onDone, stepLabel = '') {
         <svg class="ring" viewBox="0 0 300 300"><circle class="bg" cx="150" cy="150" r="${R}"/>
           <circle class="fg" cx="150" cy="150" r="${R}" stroke-dasharray="${C}" stroke-dashoffset="${C}"/></svg>
         <div class="circle" id="circ"></div>
-        <div class="paused-lbl" id="plbl" hidden>Pause – tryk for at fortsætte</div>
+        <div class="paused-lbl" id="plbl" hidden>Paused – tap to continue</div>
       </div>
-      <div class="phase" id="ph">Gør dig klar…</div>
+      <div class="phase" id="ph">Get ready…</div>
       <div class="count" id="ct"></div>
       <div class="b-bottom">
         <button id="bpause" aria-label="Pause">⏸</button>
@@ -782,7 +786,7 @@ function runBreath(opts, onDone, stepLabel = '') {
   $('#bclose', o).onclick = closeOverlay;
 }
 
-// Blød vibration der tiltager (ind) eller aftager (ud) gennem fasen.
+// Soft vibration that grows (in) or fades (out) through the phase.
 function rampPattern(sec, up) {
   const pat = [], steps = Math.max(2, Math.round(sec * 2));
   for (let i = 0; i < steps; i++) {
@@ -793,18 +797,18 @@ function rampPattern(sec, up) {
   return pat;
 }
 
-/* ---------- Afslutning ---------- */
+/* ---------- Finish ---------- */
 
-function showDone(totalSec, cycles, title = 'Godt gået 💜') {
+function showDone(totalSec, cycles, title = 'Well done 💜') {
   let mood = null;
   const min = Math.round(totalSec / 60);
   const o = openOverlay(`
     <div class="done-emo">🌸</div>
     <h2 class="center">${title}</h2>
-    <p class="sub center">${min} ${min === 1 ? 'minut' : 'minutter'}${cycles ? ` · ${cycles} vejrtrækninger` : ''}</p>
-    <div class="lbl center" style="margin-top:36px">Hvordan har du det nu?</div>
+    <p class="sub center">${min} ${min === 1 ? 'minute' : 'minutes'}${cycles ? ` · ${cycles} breaths` : ''}</p>
+    <div class="lbl center" style="margin-top:36px">How do you feel now?</div>
     <div class="moods">${['😣', '😕', '😐', '🙂', '😌'].map((m, i) => `<button data-m="${i + 1}">${m}</button>`).join('')}</div>
-    <button class="big-btn" id="fin" style="margin-top:40px">Færdig</button>
+    <button class="big-btn" id="fin" style="margin-top:40px">Done</button>
   `);
   $$('.moods button', o).forEach(b => b.onclick = () => {
     mood = +b.dataset.m;
@@ -815,14 +819,14 @@ function showDone(totalSec, cycles, title = 'Godt gået 💜') {
   $('#fin', o).onclick = closeOverlay;
 }
 
-/* ---------- Situationer ---------- */
+/* ---------- Situations ---------- */
 
 function showSituation(id) {
   const s = SITUATIONS[id];
   const desc = st => st.type === 'breath' ? [EX[st.ex].name, `${st.min} min`]
-    : st.type === 'scan' ? ['Kropsscanning', `${st.min} min${st.sound ? ' · med ' + SOUNDS[st.sound].name.toLowerCase() : ''}`]
-    : st.type === 'sound' ? [`${SOUNDS[st.sound].name}lyd`, `Kører i ${st.min} min og fader ud`]
-    : [st.title, 'Kort tanke til dig'];
+    : st.type === 'scan' ? ['Body scan', `${st.min} min${st.sound ? ' · with ' + SOUNDS[st.sound].name.toLowerCase() : ''}`]
+    : st.type === 'sound' ? [`${SOUNDS[st.sound].name} sounds`, `Plays for ${st.min} min and fades out`]
+    : [st.title, 'A short thought for you'];
   const o = openOverlay(`
     ${closeBtn('Situation')}
     <div style="font-size:46px;margin-top:10px">${s.emo}</div>
@@ -840,11 +844,11 @@ function showSituation(id) {
 function runProgram(s) {
   const t0 = Date.now();
   let i = 0;
-  const label = () => `${s.name} · trin ${i + 1} af ${s.steps.length}`;
+  const label = () => `${s.name} · step ${i + 1} of ${s.steps.length}`;
   const next = () => {
     if (i >= s.steps.length) {
       const secs = (Date.now() - t0) / 1000;
-      return showDone(secs, 0, 'Programmet er færdigt 💜');
+      return showDone(secs, 0, 'Program complete 💜');
     }
     const st = s.steps[i], lbl = label();
     i++;
@@ -863,7 +867,7 @@ function showThought(st, onDone, lbl) {
       <div class="mini-circle"><div class="circle breath-demo"></div></div>
       <h2 class="center">${st.title}</h2>
       <p class="desc center" style="padding:0 18px">${st.text}</p>
-      <button class="big-btn" id="nx" style="width:auto;padding:15px 40px">Videre</button>
+      <button class="big-btn" id="nx" style="width:auto;padding:15px 40px">Continue</button>
     </div>`);
   o.style.padding = '0';
   if (S.voice) speak(st.text);
@@ -873,22 +877,22 @@ function showThought(st, onDone, lbl) {
   $('#nx', o).onclick = go2;
 }
 
-/* ---------- Kropsscanning ---------- */
+/* ---------- Body scan ---------- */
 
 function showScanDetail() {
   let len = 5, sound = null;
   const o = openOverlay(`
     ${closeBtn()}
-    <h2>🧘 Kropsscanning</h2>
-    <p class="desc">En rolig stemme guider dig gennem kroppen, del for del – fra fødderne til hovedet. Læg dig godt til rette.</p>
-    <div class="lbl">Længde</div>
+    <h2>🧘 Body scan</h2>
+    <p class="desc">A calm voice guides you through your body, part by part – from your feet to your head. Get comfortable.</p>
+    <div class="lbl">Length</div>
     <div class="seg" id="len"><button data-l="5" class="on">5 min</button><button data-l="10">10 min</button></div>
-    <div class="lbl">Baggrundslyd</div>
-    <div class="chips" id="bg"><button class="chip on" data-s="">Ingen</button>
+    <div class="lbl">Background sound</div>
+    <div class="chips" id="bg"><button class="chip on" data-s="">None</button>
       ${Object.entries(SOUNDS).map(([k, s]) => `<button class="chip" data-s="${k}">${s.emo} ${s.name}</button>`).join('')}
     </div>
     <div class="set" style="margin-top:22px">
-      <div class="it"><div>Stemme<br><span>${daVoice ? 'Dansk stemme fundet' : 'Bruger telefonens standardstemme'}</span></div><button class="switch ${S.voice ? 'on' : ''}" data-k="voice"></button></div>
+      <div class="it"><div>Voice<br><span>Uses your phone’s built-in voice</span></div><button class="switch ${S.voice ? 'on' : ''}" data-k="voice"></button></div>
     </div>
     <button class="big-btn" id="start">Start</button>
   `);
@@ -920,14 +924,14 @@ function runScan(min, onDone, stepLabel = '') {
   const total = min * 60, per = total / SCAN.length;
   const o = openOverlay(`
     <div class="breathe" id="sc">
-      <div class="step-name">${stepLabel || `Kropsscanning · ${min} min`}</div>
+      <div class="step-name">${stepLabel || `Body scan · ${min} min`}</div>
       ${BODY_SVG}
-      <div class="scan-text" id="stx">Gør dig klar…</div>
+      <div class="scan-text" id="stx">Get ready…</div>
       <div class="count" id="sct"></div>
       <div class="b-bottom">
-        <button id="sback" aria-label="Tilbage 15 sekunder">↺</button>
+        <button id="sback" aria-label="Back 15 seconds">↺</button>
         <button id="spause" aria-label="Pause">⏸</button>
-        <button id="sfwd" aria-label="Frem 15 sekunder">↻</button>
+        <button id="sfwd" aria-label="Forward 15 seconds">↻</button>
         <button id="sclose" aria-label="Stop">✕</button>
       </div>
     </div>`);
@@ -973,23 +977,23 @@ function runScan(min, onDone, stepLabel = '') {
   $('#sclose', o).onclick = closeOverlay;
 }
 
-/* ---------- Egen øvelse ---------- */
+/* ---------- Custom exercise ---------- */
 
 function showCustomEditor() {
   const v = { p: [4, 2, 6, 0], min: 3, name: '' };
-  const lab = ['Ind', 'Hold', 'Ud', 'Hold'];
+  const lab = ['In', 'Hold', 'Out', 'Hold'];
   const o = openOverlay(`
     ${closeBtn('Premium')}
-    <h2>Lav din egen øvelse</h2>
-    <p class="sub">Cirklen viser din rytme, mens du justerer.</p>
+    <h2>Create your own exercise</h2>
+    <p class="sub">The circle shows your rhythm as you adjust.</p>
     <div class="mini-circle" style="margin-top:18px"><div class="circle" id="prev"></div></div>
     ${v.p.map((s, i) => `
-      <div class="slider-row"><div><span>${lab[i]}</span><b id="v${i}">${s} sek</b></div>
+      <div class="slider-row"><div><span>${lab[i]}</span><b id="v${i}">${s} sec</b></div>
         <input type="range" min="${i % 2 ? 0 : 1}" max="10" value="${s}" data-i="${i}"></div>`).join('')}
-    <div class="slider-row"><div><span>Længde</span><b id="vm">${v.min} min</b></div>
+    <div class="slider-row"><div><span>Length</span><b id="vm">${v.min} min</b></div>
       <input type="range" min="1" max="15" value="${v.min}" id="rm"></div>
-    <input class="text-in" id="nm" placeholder="Navn, fx Min aftenrytme" maxlength="30">
-    <button class="big-btn" id="savec">Gem øvelse</button>
+    <input class="text-in" id="nm" placeholder="Name, e.g. My evening rhythm" maxlength="30">
+    <button class="big-btn" id="savec">Save exercise</button>
   `);
   bindClose(o);
   const prev = $('#prev', o);
@@ -1005,12 +1009,12 @@ function showCustomEditor() {
   };
   loop();
   cleanup = () => clearTimeout(pt);
-  $$('input[data-i]', o).forEach(r => r.oninput = () => { v.p[r.dataset.i] = +r.value; $('#v' + r.dataset.i, o).textContent = r.value + ' sek'; });
+  $$('input[data-i]', o).forEach(r => r.oninput = () => { v.p[r.dataset.i] = +r.value; $('#v' + r.dataset.i, o).textContent = r.value + ' sec'; });
   $('#rm', o).oninput = e => { v.min = +e.target.value; $('#vm', o).textContent = v.min + ' min'; };
   $('#savec', o).onclick = () => {
-    const name = $('#nm', o).value.trim() || 'Min øvelse';
+    const name = $('#nm', o).value.trim() || 'My exercise';
     S.custom.push({ id: 'c' + Date.now(), name, p: [...v.p], min: v.min });
-    save(); closeOverlay(); toast('Din øvelse er gemt på forsiden ✨');
+    save(); closeOverlay(); toast('Your exercise is saved on the home screen ✨');
   };
 }
 
@@ -1021,58 +1025,58 @@ function paywall() {
   const o = openOverlay(`
     ${closeBtn()}
     <div style="font-size:46px;margin-top:6px">✨</div>
-    <h2>Få mere ro med Relaxed Premium</h2>
+    <h2>Find more calm with Relaxed Premium</h2>
     <ul class="prem-list">
-      <li><span>🌙</span>Alle øvelser og situationsprogrammer</li>
-      <li><span>🧘</span>Guidet kropsscanning på 5 og 10 min</li>
-      <li><span>🌲</span>Alle lyde – og bland to sammen</li>
-      <li><span>✨</span>Lav dine egne øvelser</li>
+      <li><span>🌙</span>All exercises and situation programs</li>
+      <li><span>🧘</span>Guided body scan, 5 and 10 min</li>
+      <li><span>🌲</span>All sounds – and mix two together</li>
+      <li><span>✨</span>Create your own exercises</li>
     </ul>
-    <button class="plan on" data-p="year"><div><b>249 kr. / år</b><small>Svarer til ca. 21 kr. om måneden</small></div><span class="badge">Spar 40 %</span></button>
-    <button class="plan" data-p="month"><div><b>35 kr. / måned</b><small>Opsig når som helst</small></div></button>
-    <button class="big-btn" id="buy">Prøv gratis i 7 dage</button>
-    <button class="ghost-btn" data-close>Ikke nu</button>
-    <p class="sub center" style="font-size:12px">Dette er en prototype – der bliver ikke trukket penge.</p>
+    <button class="plan on" data-p="year"><div><b>$34.99 / year</b><small>Just $2.92 a month</small></div><span class="badge">Save 40%</span></button>
+    <button class="plan" data-p="month"><div><b>$4.99 / month</b><small>Cancel anytime</small></div></button>
+    <button class="big-btn" id="buy">Try free for 7 days</button>
+    <button class="ghost-btn" data-close>Not now</button>
+    <p class="sub center" style="font-size:12px">This is a prototype – you will not be charged.</p>
   `);
   bindClose(o);
   $$('.plan', o).forEach(b => b.onclick = () => { plan = b.dataset.p; $$('.plan', o).forEach(x => x.classList.toggle('on', x === b)); });
   $('#buy', o).onclick = () => {
     S.premium = true; save(); closeOverlay();
-    toast('✨ Premium er slået til (demo)');
+    toast('✨ Premium is on (demo)');
   };
 }
 
-/* ---------- Velkomst ---------- */
+/* ---------- Welcome ---------- */
 
 function onboarding(step = 0) {
-  const goals = ['😴 Sove bedre', '😮‍💨 Mindre stress', '📚 Ro før eksamen', '☁️ Bare et pusterum'];
+  const goals = ['😴 Sleep better', '😮‍💨 Less stress', '📚 Calm before exams', '☁️ Just a breather'];
   const dots = `<div class="dots">${[0, 1, 2].map(i => `<i class="${i === step ? 'on' : ''}"></i>`).join('')}</div>`;
   let html;
   if (step === 0) html = `
     <div class="onb">
       <div class="mini-circle" style="width:200px;height:200px;margin-bottom:30px"><div class="circle breath-demo" style="width:200px;height:200px"></div></div>
       ${dots}
-      <h2 class="center">Velkommen til Relaxed</h2>
-      <p class="desc center">Et par minutter om dagen til at trække vejret, slappe af og falde til ro.</p>
-      <button class="big-btn" id="nx">Kom i gang</button>
+      <h2 class="center">Welcome to Relaxed</h2>
+      <p class="desc center">A few minutes a day to breathe, relax and unwind.</p>
+      <button class="big-btn" id="nx">Get started</button>
     </div>`;
   if (step === 1) html = `
     <div class="onb">
       ${dots}
-      <h2>Hvad vil du gerne have hjælp til?</h2>
-      <p class="sub">Vælg gerne flere.</p>
+      <h2>What would you like help with?</h2>
+      <p class="sub">Choose as many as you like.</p>
       ${goals.map(g => `<button class="opt ${S.goals.includes(g) ? 'on' : ''}">${g}</button>`).join('')}
-      <button class="big-btn" id="nx">Videre</button>
+      <button class="big-btn" id="nx">Continue</button>
     </div>`;
   if (step === 2) html = `
     <div class="onb">
       ${dots}
       <div style="font-size:50px;text-align:center">🔔</div>
-      <h2 class="center">Skal vi minde dig om det?</h2>
-      <p class="desc center">En venlig besked hver dag: "Tag 2 minutter til dig selv".</p>
+      <h2 class="center">Want a reminder?</h2>
+      <p class="desc center">A friendly message every day: "Take 2 minutes for yourself".</p>
       <div class="center" style="margin-top:22px"><input type="time" id="ot" value="${S.reminder.time}" style="font-size:22px;padding:10px 16px"></div>
-      <button class="big-btn" id="yes">Ja tak</button>
-      <button class="ghost-btn" id="no">Ikke nu</button>
+      <button class="big-btn" id="yes">Yes please</button>
+      <button class="ghost-btn" id="no">Not now</button>
     </div>`;
   const o = openOverlay(html);
   if (step === 1) $$('.opt', o).forEach(b => b.onclick = () => {
@@ -1093,7 +1097,7 @@ function onboarding(step = 0) {
 }
 
 /* =========================================================
-   Påmindelse, installation, tema
+   Reminder, install, theme
    ========================================================= */
 
 function checkReminder() {
@@ -1118,9 +1122,9 @@ function installCard() {
   if (isStandalone() || isDesktopFrame() || localStorage.getItem('rolig-hide-install')) return '';
   return `<div class="row install-tip" style="margin-top:16px">
     <div class="ic">📲</div>
-    <div class="tx"><b>Læg Relaxed på hjemmeskærmen</b><span>Så åbner den som en rigtig app</span></div>
-    <button class="chip" id="instbtn">Sådan</button>
-    <button class="iconbtn" id="insthide" aria-label="Skjul">✕</button>
+    <div class="tx"><b>Add Relaxed to your Home Screen</b><span>Then it opens like a real app</span></div>
+    <button class="chip" id="instbtn">How</button>
+    <button class="iconbtn" id="insthide" aria-label="Hide">✕</button>
   </div>`;
 }
 function bindInstall() {
@@ -1128,7 +1132,7 @@ function bindInstall() {
   $('#insthide') && ($('#insthide').onclick = () => { localStorage.setItem('rolig-hide-install', '1'); go('home'); });
 }
 async function showInstallHelp() {
-  if (isStandalone()) return toast('Relaxed er allerede installeret 💜');
+  if (isStandalone()) return toast('Relaxed is already installed 💜');
   if (deferredPrompt) {
     deferredPrompt.prompt();
     await deferredPrompt.userChoice; deferredPrompt = null; go(tab); return;
@@ -1136,20 +1140,20 @@ async function showInstallHelp() {
   const o = openOverlay(`
     ${closeBtn()}
     <div style="font-size:46px;margin-top:6px">📲</div>
-    <h2>Føj til hjemmeskærm</h2>
+    <h2>Add to Home Screen</h2>
     ${isIOS() ? `
       <div class="timeline">
-        <div class="tl"><div class="n">1</div><div><b>Åbn siden i Safari</b><span>Det virker kun i Safari på iPhone</span></div></div>
-        <div class="tl"><div class="n">2</div><div><b>Tryk på Del-knappen ⬆︎</b><span>Nederst på skærmen (eller øverst på iPad)</span></div></div>
-        <div class="tl"><div class="n">3</div><div><b>Vælg "Føj til hjemmeskærm"</b><span>Rul lidt ned i menuen, hvis du ikke kan se den</span></div></div>
-        <div class="tl"><div class="n">4</div><div><b>Tryk "Tilføj"</b><span>Nu ligger Relaxed på din hjemmeskærm</span></div></div>
+        <div class="tl"><div class="n">1</div><div><b>Open the page in Safari</b><span>This only works in Safari on iPhone</span></div></div>
+        <div class="tl"><div class="n">2</div><div><b>Tap the Share button ⬆︎</b><span>At the bottom of the screen (or the top on iPad)</span></div></div>
+        <div class="tl"><div class="n">3</div><div><b>Choose "Add to Home Screen"</b><span>Scroll down the menu a little if you can’t see it</span></div></div>
+        <div class="tl"><div class="n">4</div><div><b>Tap "Add"</b><span>Relaxed is now on your Home Screen</span></div></div>
       </div>` : `
       <div class="timeline">
-        <div class="tl"><div class="n">1</div><div><b>Åbn siden i Chrome</b><span>På din Android-telefon</span></div></div>
-        <div class="tl"><div class="n">2</div><div><b>Tryk på menuen ⋮</b><span>Øverst til højre</span></div></div>
-        <div class="tl"><div class="n">3</div><div><b>Vælg "Installer app" eller "Føj til startskærm"</b><span>Bekræft med "Installer"</span></div></div>
+        <div class="tl"><div class="n">1</div><div><b>Open the page in Chrome</b><span>On your Android phone</span></div></div>
+        <div class="tl"><div class="n">2</div><div><b>Tap the menu ⋮</b><span>In the top right corner</span></div></div>
+        <div class="tl"><div class="n">3</div><div><b>Choose "Install app" or "Add to Home screen"</b><span>Confirm with "Install"</span></div></div>
       </div>`}
-    <button class="big-btn" data-close>Forstået</button>
+    <button class="big-btn" data-close>Got it</button>
   `);
   bindClose(o);
 }
