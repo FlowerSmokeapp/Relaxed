@@ -40,7 +40,7 @@ button { font: inherit; color: inherit; border: 0; background: none; cursor: poi
 input { font: inherit; }
 
 /* ---------- Ramme: mobil = fuld skærm, computer = telefonramme ---------- */
-.desk-side, .notch { display: none; }
+.notch { display: none; }
 .phone { position: fixed; inset: 0; }
 #app { position: relative; width: 100%; height: 100%; overflow: hidden; background: var(--bg); transition: background .4s; }
 
@@ -51,13 +51,9 @@ input { font: inherit; }
                 radial-gradient(1000px 700px at 90% 90%, #D5E7F8 0%, transparent 60%), #EEEAF8;
     min-height: 100vh;
   }
-  .desk-side { display: block; max-width: 280px; color: #2F2A45; }
-  .desk-side h1 { font-size: 46px; letter-spacing: 2px; margin: 0 0 8px; color: #6E5BA8; }
-  .desk-side p { font-size: 18px; line-height: 1.5; margin: 0 0 12px; }
-  .desk-side .muted { color: #7A7494; font-size: 15px; }
   .phone {
     position: relative; inset: auto;
-    width: 390px; height: min(844px, calc(100vh - 48px));
+    height: calc(100vh - 32px); max-height: 1000px; aspect-ratio: 9 / 19.5; width: auto;
     border-radius: 54px; padding: 12px; background: #1E1B2E;
     box-shadow: 0 40px 90px rgba(60, 40, 120, .35), inset 0 0 0 2px #3A3552;
     flex-shrink: 0;
@@ -68,7 +64,6 @@ input { font: inherit; }
     width: 118px; height: 32px; border-radius: 20px; background: #1E1B2E; z-index: 50;
   }
 }
-@media (max-width: 1000px) and (min-width: 760px) { .desk-side { display: none; } }
 
 /* ---------- Visning ---------- */
 #view {
